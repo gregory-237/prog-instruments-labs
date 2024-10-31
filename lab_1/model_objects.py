@@ -48,5 +48,5 @@ class Customer:
         self.shoppingLists = []
         self.address = None
 
-    def addShoppingList(self, shoppingList):
+    def add_shopping_list(self, shoppingList):
         self.shoppingLists.append(shoppingList)
