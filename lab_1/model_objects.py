@@ -37,16 +37,16 @@ class ExternalCustomer:
 
 
 class Customer:
-    def __init__(self, internalId: str = None, externalId: str = None, masterExternalId: str = None, name: str = None,
-                 customerType: CustomerType = None, companyNumber: str = None):
-        self.internalId = internalId
-        self.externalId = externalId
-        self.masterExternalId = masterExternalId
+    def __init__(self, internal_id: str = None, external_id: str = None, master_external_id: str = None,
+                 name: str = None, customer_type: CustomerType = None, company_number: str = None):
+        self.internalId = internal_id
+        self.externalId = external_id
+        self.masterExternalId = master_external_id
         self.name = name
-        self.customerType = customerType
-        self.companyNumber = companyNumber
+        self.customerType = customer_type
+        self.companyNumber = company_number
         self.shoppingLists = []
         self.address = None
 
-    def add_shopping_list(self, shoppingList):
-        self.shoppingLists.append(shoppingList)
+    def add_shopping_list(self, shopping_list):
+        self.shoppingLists.append(shopping_list)
