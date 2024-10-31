@@ -140,11 +140,11 @@ class CustomerDataLayer:
         self.conn.commit()
         return customer
 
-    def next_id(self, tablename):
-        self.cursor.execute(f'SELECT MAX(ROWID) AS max_id FROM {tablename};')
-        (id,) = self.cursor.fetchone()
-        if id:
-            return int(id) + 1
+    def next_id(self, table_name):
+        self.cursor.execute(f'SELECT MAX(ROWID) AS max_id FROM {table_name};')
+        (old_id,) = self.cursor.fetchone()
+        if old_id:
+            return int(old_id) + 1
         else:
             return 1
 
