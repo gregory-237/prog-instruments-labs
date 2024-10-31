@@ -62,7 +62,8 @@ class CustomerDataLayer:
 
     def find_by_external_id(self, external_id):
         self.cursor.execute(
-            'SELECT internalId, externalId, masterExternalId, name, customerType, companyNumber FROM customers WHERE externalId=?',
+            'SELECT internalId, externalId, masterExternalId, name, customerType,'
+            ' companyNumber FROM customers WHERE externalId=?',
             (external_id,))
         customer = self.customer_from_sql_select_fields(self.cursor.fetchone())
         return customer
@@ -91,8 +92,8 @@ class CustomerDataLayer:
                 customer.address = address
         self.cursor.execute('SELECT shoppinglistId FROM customer_shoppinglists WHERE customerId=?',
                             (customer.internalId,))
-        shoppinglists = self.cursor.fetchall()
-        for sl in shoppinglists:
+        shopping_lists = self.cursor.fetchall()
+        for sl in shopping_lists:
             self.cursor.execute('SELECT products FROM shoppinglists WHERE shoppinglistId=?', (sl[0],))
             products_as_str = self.cursor.fetchone()
             products = products_as_str[0].split(", ")
@@ -101,13 +102,15 @@ class CustomerDataLayer:
 
     def find_by_master_external_id(self, master_external_id):
         self.cursor.execute(
-            'SELECT internalId, externalId, masterExternalId, name, customerType, companyNumber FROM customers WHERE masterExternalId=?',
+            'SELECT internalId, externalId, masterExternalId, name, customerType,'
+            ' companyNumber FROM customers WHERE masterExternalId=?',
             (master_external_id,))
         return self.customer_from_sql_select_fields(self.cursor.fetchone())
 
     def find_by_company_number(self, company_number):
         self.cursor.execute(
-            'SELECT internalId, externalId, masterExternalId, name, customerType, companyNumber FROM customers WHERE companyNumber=?',
+            'SELECT internalId, externalId, masterExternalId, name, customerType,'
+            ' companyNumber FROM customers WHERE companyNumber=?',
             (company_number,))
         return self.customer_from_sql_select_fields(self.cursor.fetchone())
 
@@ -147,7 +150,8 @@ class CustomerDataLayer:
 
     def update_customer_record(self, customer):
         self.cursor.execute(
-            'Update customers set externalId=?, masterExternalId=?, name=?, customerType=?, companyNumber=? WHERE internalId=?',
+            'Update customers set externalId=?, masterExternalId=?, name=?,'
+            ' customerType=?, companyNumber=? WHERE internalId=?',
             (customer.externalId, customer.masterExternalId, customer.name, customer.customerType.value,
              customer.companyNumber, customer.internalId))
         if customer.address:
