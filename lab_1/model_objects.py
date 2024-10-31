@@ -10,10 +10,12 @@ class CustomerType(Enum):
     PERSON = 1
     COMPANY = 2
 
+
 @dataclass_json
 @dataclass
 class ShoppingList:
     products: List[str] = field(default_factory=list)
+
 
 @dataclass_json
 @dataclass(frozen=True)
@@ -21,6 +23,7 @@ class Address:
     street: str
     city: str
     postalCode: str
+
 
 @dataclass_json
 @dataclass(frozen=True)
