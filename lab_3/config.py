@@ -13,3 +13,4 @@ PATTERNS = {
 
 CSV_PATH = "80.csv"
 RESULT_PATH = "result.json"
+

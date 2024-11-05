@@ -43,3 +43,4 @@ def indices_invalid_rows(raw_data: pd.DataFrame) -> list[Hashable]:
 
 if __name__ == "__main__":
     serialize_result(80, calculate_checksum(indices_invalid_rows(read_csv(CSV_PATH))))
+

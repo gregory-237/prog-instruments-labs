@@ -54,3 +54,4 @@ def serialize_result(variant: int, checksum: str) -> None:
 if __name__ == "__main__":
     print(calculate_checksum([1, 2, 3]))
     print(calculate_checksum([3, 2, 1]))
+
