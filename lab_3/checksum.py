@@ -1,6 +1,11 @@
 import json
 import hashlib
+import logging
 from typing import List
+
+from config import RESULT_PATH
+
+logging.basicConfig(level=logging.INFO, filename="logs.log", filemode='w')
 
 """
 В этом модуле обитают функции, необходимые для автоматизированной проверки результатов ваших трудов.
@@ -38,7 +43,12 @@ def serialize_result(variant: int, checksum: str) -> None:
     :param variant: номер вашего варианта
     :param checksum: контрольная сумма, вычисленная через calculate_checksum()
     """
-    pass
+    result = {"variant": str(variant), "checksum": checksum}
+    try:
+        with open(RESULT_PATH, "w") as json_file:
+            json.dump(result, json_file, indent=2)
+    except Exception as e:
+        logging.error(f'Can not write to .json file - {e}')
 
 
 if __name__ == "__main__":
