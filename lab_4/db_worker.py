@@ -1,6 +1,7 @@
 import sqlite3
 
 from config import DB_NAME
+from bot_logger import configured_logger
 
 
 class DatabaseWorker:
@@ -42,6 +43,12 @@ class DatabaseWorker:
         self.cursor.execute('''INSERT INTO workers (user_id, phone_number,
          fio, city, status) VALUES (?, ?, ?, ?, ?)''', (user_id, phone_number, fio, city, status))
         self.conn.commit()
+        configured_logger.info('Зарегистрирован новый рабочий', user_id=user_id, role='worker',
+                               ext_params={
+                                  'Номер телефона': phone_number,
+                                  'ФИО': fio,
+                                  'Город': city,
+                              })
 
     def all_worker_id_by_city(self, city: str):
         with self.conn:

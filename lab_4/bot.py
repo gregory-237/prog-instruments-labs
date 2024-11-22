@@ -10,6 +10,7 @@ from config import BOT_TOKEN
 from db_worker import DatabaseWorker
 from db_order import DatabaseOrder
 from utility import start_places, has_places
+from bot_logger import configured_logger
 
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -204,7 +205,8 @@ async def start_work(callback: types.CallbackQuery):
 @dp.callback_query_handler(text_startswith='send_order')
 async def send_all_order(callback: types.CallbackQuery):
     order_id = f'{callback.from_user.id}_1_{datetime.datetime.now()}'
-    db_order.add_order(order_id,
+    db_order.add_order(callback.from_user.id,
+                       order_id,
                        callback.message.text.split('\n')[0].split('Город|')[1],
                        callback.message.text.split('\n')[1].split('Количество человек|')[1],
                        callback.message.text.split('\n')[2].split('Минималка (часов)|')[1],
@@ -234,9 +236,16 @@ async def send_all_order(callback: types.CallbackQuery):
     bt2 = types.InlineKeyboardButton('📞Связаться для уточнений', url='https://t.me/gregory237')
     worker_markup.add(bt2)
     for worker_id in db_worker.all_worker_id_by_city(callback.message.text.split('\n')[0].split('Город|')[1]):
+        print(worker_id[0])
         await bot.send_message(worker_id[0],
                                text, parse_mode='html', reply_markup=worker_markup)
     await callback.message.edit_text('✅Заказ успешно разослан. Ожидай откликов по заказу.🕰')
+    configured_logger.info('✅Заказ успешно разослан', user_id=callback.from_user.id, role='admin',
+                           ext_params={
+                               'Город': order_info[3], 'Количество людей': start_places(order_id), 'Адрес': order_info[6],
+                               'Время начала': order_info[7],
+                               'Время работы': order_info[8], 'Оплата в час': order_info[9],
+                           })
 
 
 @dp.callback_query_handler(text_startswith='want')
@@ -268,15 +277,37 @@ async def work_on_order(callback: types.CallbackQuery):
                                          f'📞{worker_info[1]}\n'
                                          f'🚘Поедет {callback.data.split("_")[1]} человек(а)',
                                reply_markup=confirm_worker, parse_mode='html')
+        configured_logger.info('✅Рабочий отправил заявку', user_id=callback.from_user.id, role='worker',
+                               ext_params={
+                                   'Имя': worker_info[2],
+                                   'Номер телефона': worker_info[1],
+                                   'Город': order_info[3],
+                                   'Количество людей': start_places(order_id),
+                                   'Адрес': order_info[6],
+                                   'Время начала': order_info[7],
+                                   'Время работы': order_info[8],
+                                   'Оплата в час': order_info[9],
+                               })
     else:
         await bot.answer_callback_query(callback.id, '❗️К сожалению по данной заявке уже нет столько мест.',
                                         show_alert=True)
+        configured_logger.error('Не хватило мест на заявку', user_id=callback.from_user.id, role='worker',
+                                ext_params={
+                                   'Имя': worker_info[2],
+                                   'Номер телефона': worker_info[1],
+                                   'Город': order_info[3],
+                                   'Количество людей': start_places(order_id),
+                                   'Адрес': order_info[6],
+                                   'Время начала': order_info[7],
+                                   'Время работы': order_info[8],
+                                   'Оплата в час': order_info[9],
+                               })
 
 
 @dp.callback_query_handler(text_startswith='confirm')
 async def confirm_worker_on_order(callback: types.CallbackQuery):
     order_id = callback.data.split('_')[3] + '_' + callback.data.split('_')[4] + '_' + callback.data.split('_')[5]
-    db_order.update_after_confirm(order_id,
+    db_order.update_after_confirm(callback.from_user.id, order_id,
                                   callback.data.split('_')[1], int(callback.data.split('_')[2]))
     old_order = db_order.select_info_order(order_id)
     if int(old_order[4]) - int(old_order[2]) > 0:

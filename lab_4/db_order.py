@@ -1,6 +1,7 @@
 import sqlite3
 
 from config import DB_NAME
+from bot_logger import configured_logger
 
 
 class DatabaseOrder:
@@ -21,6 +22,10 @@ class DatabaseOrder:
             (order_id, city,
              group_number, minimum, address, time_start, time_work, price_hour, status, desc,))
         self.conn.commit()
+        configured_logger.info('Добавлена заявка на работы', user_id=admin_id, role='admin', ext_params={
+            'Город': city, 'Количество людей': group_number, 'Адрес': address, 'Время начала': time_start,
+            'Время работы': time_work, 'Оплата в час': price_hour,
+        })
 
     def all_orders(self, user_id) -> list:
         with self.conn:
@@ -34,7 +39,7 @@ class DatabaseOrder:
                                        (
                                            order_id,)).fetchone()
 
-    def update_after_confirm(self, order_id, worker_id, worker_group):
+    def update_after_confirm(self, admin_id: int, order_id, worker_id, worker_group):
         self.cursor.execute(
             f'''UPDATE orders SET worker_id = {worker_id} WHERE order_id = ?''', (
                 (order_id,)
@@ -46,6 +51,9 @@ class DatabaseOrder:
             (order_id,)
         ))
         self.conn.commit()
+        configured_logger.info('Изменены данные заявки после подтверждения админом', user_id=admin_id, role='admin', ext_params={
+            'ID рабочего': admin_id, 'Количество людей': worker_group,
+        })
 
 
 
